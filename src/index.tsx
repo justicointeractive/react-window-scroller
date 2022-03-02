@@ -26,7 +26,7 @@ type OnScrollProps = {
 };
 
 type CommonChildrenRenderProps<TRef, TOnScrollProps> = {
-  ref: MutableRefObject<TRef | undefined>;
+  ref: MutableRefObject<TRef | null>;
   outerRef: MutableRefObject<HTMLElement | undefined>;
   style: React.CSSProperties;
   onScroll: (ev: TOnScrollProps) => any;
@@ -75,7 +75,7 @@ function pageOffset(
 export function ReactWindowScroller<
   TProps extends ListScrollerProps | GridScrollerProps
 >({ children, throttleTime = 10, isGrid }: TProps): JSX.Element {
-  const ref = useRef<ScrollableRef<TProps['isGrid']>>();
+  const ref = useRef<ScrollableRef<TProps['isGrid']>>(null);
   const outerRef = useRef<HTMLElement>();
 
   useEffect(() => {
