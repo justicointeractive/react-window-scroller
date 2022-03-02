@@ -77,13 +77,9 @@ function pageOffset(
     : {};
 }
 
-export const ReactWindowScroller = <
+export function ReactWindowScroller<
   TProps extends ListScrollerProps | GridScrollerProps
->({
-  children,
-  throttleTime = 10,
-  isGrid
-}: TProps) => {
+>({ children, throttleTime = 10, isGrid }: TProps): ReactNode {
   const ref = useRef<ScrollableRef<TProps['isGrid']>>();
   const outerRef = useRef<HTMLElement>();
 
@@ -147,4 +143,4 @@ export const ReactWindowScroller = <
     },
     onScroll
   });
-};
+}
