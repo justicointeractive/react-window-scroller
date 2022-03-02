@@ -8,29 +8,8 @@ import {
   VariableSizeGrid,
   VariableSizeList
 } from 'react-window';
-
-const windowScrollPositionKey = {
-  y: 'pageYOffset',
-  x: 'pageXOffset'
-} as const;
-
-const documentScrollPositionKey = {
-  y: 'scrollTop',
-  x: 'scrollLeft'
-} as const;
-
-const getScrollPosition = (axis: 'x' | 'y') =>
-  window[windowScrollPositionKey[axis]] ||
-  document.documentElement[documentScrollPositionKey[axis]] ||
-  document.body[documentScrollPositionKey[axis]] ||
-  0;
-
-type OnScrollProps = {
-  scrollLeft: number;
-  scrollTop: number;
-  scrollOffset: number;
-  scrollUpdateWasRequested: boolean;
-};
+import { elementPageOffset } from './lib/elementPageOffset';
+import { getWindowScrollPosition } from './lib/getScrollPosition';
 
 type CommonChildrenRenderProps<TRef, TOnScrollProps> = {
   ref: MutableRefObject<TRef | null>;
@@ -39,10 +18,7 @@ type CommonChildrenRenderProps<TRef, TOnScrollProps> = {
   onScroll: (ev: TOnScrollProps) => any;
 };
 
-type ScrollerProps<
-  TIsGrid extends boolean | undefined,
-  TIsVariable extends boolean | undefined
-> = {
+type ScrollerProps<TIsGrid extends boolean, TIsVariable extends boolean> = {
   children: (
     renderProps: CommonChildrenRenderProps<
       ScrollableRef<TIsGrid, TIsVariable>,
@@ -54,13 +30,13 @@ type ScrollerProps<
   isVariable?: TIsVariable;
 };
 
-type ScrollProps<TIsGrid extends boolean | undefined> = TIsGrid extends true
+type ScrollProps<TIsGrid extends boolean> = TIsGrid extends true
   ? GridOnScrollProps
   : ListOnScrollProps;
 
 type ScrollableRef<
-  TIsGrid extends boolean | undefined,
-  TIsVariable extends boolean | undefined
+  TIsGrid extends boolean,
+  TIsVariable extends boolean
 > = TIsGrid extends true
   ? TIsVariable extends true
     ? VariableSizeGrid
@@ -69,35 +45,24 @@ type ScrollableRef<
   ? VariableSizeList
   : FixedSizeList;
 
-function pageOffset(
-  outerRef: MutableRefObject<HTMLElement | undefined>
-): { offsetTop?: number | undefined; offsetLeft?: number | undefined } {
-  const rect = outerRef.current?.getBoundingClientRect();
-  return rect
-    ? {
-        offsetTop: rect.top + getScrollPosition('y'),
-        offsetLeft: rect.left + getScrollPosition('x')
-      }
-    : {};
-}
-
 export function ReactWindowScroller<
-  TIsGrid extends boolean | undefined,
-  TIsVariable extends boolean | undefined
+  TIsGrid extends boolean,
+  TIsVariable extends boolean
 >({
   children,
   throttleTime = 10,
-  isGrid
+  isGrid,
+  isVariable
 }: ScrollerProps<TIsGrid, TIsVariable>): JSX.Element {
   const ref = useRef<ScrollableRef<TIsGrid, TIsVariable>>(null);
   const outerRef = useRef<HTMLElement>();
 
   useEffect(() => {
     const handleWindowScroll = throttle(() => {
-      const { offsetTop = 0, offsetLeft = 0 } = pageOffset(outerRef);
+      const { offsetTop = 0, offsetLeft = 0 } = elementPageOffset(outerRef);
 
-      const scrollTop = getScrollPosition('y') - offsetTop;
-      const scrollLeft = getScrollPosition('x') - offsetLeft;
+      const scrollTop = getWindowScrollPosition('y') - offsetTop;
+      const scrollLeft = getWindowScrollPosition('x') - offsetLeft;
 
       if (isGrid) {
         (ref.current as ScrollableRef<true, TIsVariable>)?.scrollTo({
@@ -116,40 +81,46 @@ export function ReactWindowScroller<
     };
   }, [isGrid]);
 
-  const onScroll = useCallback(
-    ({
-      scrollLeft,
-      scrollTop,
-      scrollOffset,
-      scrollUpdateWasRequested
-    }: OnScrollProps) => {
+  const onScroll = useCallback<(ev: ScrollProps<TIsGrid>) => any>(
+    (scrollProps) => {
+      const { scrollUpdateWasRequested } = scrollProps;
+
       if (!scrollUpdateWasRequested) return;
-      const top = getScrollPosition('y');
-      const left = getScrollPosition('x');
-      const { offsetTop = 0, offsetLeft = 0 } = pageOffset(outerRef);
 
-      scrollOffset += Math.min(top, offsetTop);
-      scrollTop += Math.min(top, offsetTop);
-      scrollLeft += Math.min(left, offsetLeft);
+      const top = getWindowScrollPosition('y');
+      const left = getWindowScrollPosition('x');
+      const { offsetTop = 0, offsetLeft = 0 } = elementPageOffset(outerRef);
 
-      if (!isGrid && scrollOffset !== top) {
-        window.scrollTo(0, scrollOffset);
-      }
-      if (isGrid && (scrollTop !== top || scrollLeft !== left)) {
-        window.scrollTo(scrollLeft, scrollTop);
+      if (isGrid) {
+        let { scrollLeft, scrollTop } = scrollProps as GridOnScrollProps;
+
+        scrollTop += Math.min(top, offsetTop);
+        scrollLeft += Math.min(left, offsetLeft);
+
+        if (scrollTop !== top || scrollLeft !== left) {
+          window.scrollTo(scrollLeft, scrollTop);
+        }
+      } else {
+        let { scrollOffset } = scrollProps as ListOnScrollProps;
+
+        scrollOffset += Math.min(top, offsetTop);
+
+        if (scrollOffset !== top) {
+          window.scrollTo(0, scrollOffset);
+        }
       }
     },
     [isGrid]
   );
 
   return children({
-    ref: ref as any,
+    ref,
     outerRef,
     style: {
       width: isGrid ? 'auto' : '100%',
       height: '100%',
       display: 'inline-block'
     },
-    onScroll: onScroll as any
+    onScroll
   });
 }
