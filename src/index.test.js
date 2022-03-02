@@ -20,7 +20,11 @@ describe('ReactWindowScroller', () => {
 
   beforeEach(() => {
     useRef.mockReturnValueOnce({ current: { scrollTo } });
-    useRef.mockReturnValueOnce({ current: { offsetTop: 20, offsetLeft: 10 } });
+    useRef.mockReturnValueOnce({
+      current: {
+        getBoundingClientRect: () => ({ top: -10, left: -10 })
+      }
+    });
     document.documentElement.scrollTop = 30;
     document.documentElement.scrollLeft = 20;
   });
@@ -37,7 +41,7 @@ describe('ReactWindowScroller', () => {
     expect(children).toHaveBeenCalledWith({
       onScroll: expect.any(Function),
       ref: { current: { scrollTo } },
-      outerRef: { current: { offsetTop: 20, offsetLeft: 10 } },
+      outerRef: { current: { getBoundingClientRect: expect.any(Function) } },
       style: {
         display: 'inline-block',
         height: '100%',
@@ -190,7 +194,7 @@ describe('ReactWindowScroller', () => {
     window.dispatchEvent(new Event('scroll'));
     throttle.mock.calls[0][0]();
 
-    expect(scrollTo).toHaveBeenCalledWith(30);
+    expect(scrollTo).toHaveBeenCalledWith(10);
     window.pageYOffset = prevPageYOffset;
   });
 
@@ -201,7 +205,7 @@ describe('ReactWindowScroller', () => {
     window.dispatchEvent(new Event('scroll'));
     throttle.mock.calls[0][0]();
 
-    expect(scrollTo).toHaveBeenCalledWith(20);
+    expect(scrollTo).toHaveBeenCalledWith(10);
   });
 
   it('reads scroll position from document.body when document.documentElement and window page offset are not supported', () => {
@@ -212,7 +216,7 @@ describe('ReactWindowScroller', () => {
     window.dispatchEvent(new Event('scroll'));
     throttle.mock.calls[0][0]();
 
-    expect(scrollTo).toHaveBeenCalledWith(40);
+    expect(scrollTo).toHaveBeenCalledWith(10);
   });
 
   it('attaches the event handler to window scroll on mount', () => {

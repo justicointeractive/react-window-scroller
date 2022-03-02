@@ -68,7 +68,13 @@ type ScrollableRef<TIsGrid extends boolean | undefined> = TIsGrid extends true
 function pageOffset(
   outerRef: MutableRefObject<HTMLElement | undefined>
 ): { offsetTop?: number | undefined; offsetLeft?: number | undefined } {
-  return outerRef.current || {};
+  const rect = outerRef.current?.getBoundingClientRect();
+  return rect
+    ? {
+        offsetTop: rect.top + getScrollPosition('y'),
+        offsetLeft: rect.left + getScrollPosition('x')
+      }
+    : {};
 }
 
 export const ReactWindowScroller = <
