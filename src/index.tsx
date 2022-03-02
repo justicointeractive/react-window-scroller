@@ -39,29 +39,35 @@ type CommonChildrenRenderProps<TRef, TOnScrollProps> = {
   onScroll: (ev: TOnScrollProps) => any;
 };
 
-type GridScrollerProps = {
+type ScrollerProps<
+  TIsGrid extends boolean | undefined,
+  TIsVariable extends boolean | undefined
+> = {
   children: (
-    renderProps: CommonChildrenRenderProps<GridScrollableRef, GridOnScrollProps>
+    renderProps: CommonChildrenRenderProps<
+      ScrollableRef<TIsGrid, TIsVariable>,
+      ScrollProps<TIsGrid>
+    >
   ) => JSX.Element;
   throttleTime?: number;
-  isGrid: true;
+  isGrid: TIsGrid;
+  isVariable: TIsVariable;
 };
 
-type ListScrollerProps = {
-  children: (
-    renderProps: CommonChildrenRenderProps<ListScrollableRef, ListOnScrollProps>
-  ) => JSX.Element;
-  throttleTime?: number;
-  isGrid?: false;
-};
+type ScrollProps<TIsGrid extends boolean | undefined> = TIsGrid extends true
+  ? GridOnScrollProps
+  : ListOnScrollProps;
 
-type ListScrollableRef = FixedSizeList | VariableSizeList;
-
-type GridScrollableRef = FixedSizeGrid | VariableSizeGrid;
-
-type ScrollableRef<TIsGrid extends boolean | undefined> = TIsGrid extends true
-  ? GridScrollableRef
-  : ListScrollableRef;
+type ScrollableRef<
+  TIsGrid extends boolean | undefined,
+  TIsVariable extends boolean | undefined
+> = TIsGrid extends true
+  ? TIsVariable extends true
+    ? VariableSizeGrid
+    : FixedSizeGrid
+  : TIsVariable extends true
+  ? VariableSizeList
+  : FixedSizeList;
 
 function pageOffset(
   outerRef: MutableRefObject<HTMLElement | undefined>
@@ -76,9 +82,14 @@ function pageOffset(
 }
 
 export function ReactWindowScroller<
-  TProps extends ListScrollerProps | GridScrollerProps
->({ children, throttleTime = 10, isGrid }: TProps): JSX.Element {
-  const ref = useRef<ScrollableRef<TProps['isGrid']>>(null);
+  TIsGrid extends boolean | undefined,
+  TIsVariable extends boolean | undefined
+>({
+  children,
+  throttleTime = 10,
+  isGrid
+}: ScrollerProps<TIsGrid, TIsVariable>): JSX.Element {
+  const ref = useRef<ScrollableRef<TIsGrid, TIsVariable>>(null);
   const outerRef = useRef<HTMLElement>();
 
   useEffect(() => {
@@ -89,12 +100,12 @@ export function ReactWindowScroller<
       const scrollLeft = getScrollPosition('x') - offsetLeft;
 
       if (isGrid) {
-        (ref.current as ScrollableRef<typeof isGrid>)?.scrollTo({
+        (ref.current as ScrollableRef<true, TIsVariable>)?.scrollTo({
           scrollLeft,
           scrollTop
         });
       } else {
-        (ref.current as ScrollableRef<typeof isGrid>)?.scrollTo(scrollTop);
+        (ref.current as ScrollableRef<false, TIsVariable>)?.scrollTo(scrollTop);
       }
     }, throttleTime);
 
