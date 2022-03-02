@@ -65,6 +65,12 @@ type ScrollableRef<TIsGrid extends boolean | undefined> = TIsGrid extends true
   ? GridScrollableRef
   : ListScrollableRef;
 
+function pageOffset(
+  outerRef: MutableRefObject<HTMLElement | undefined>
+): { offsetTop?: number | undefined; offsetLeft?: number | undefined } {
+  return outerRef.current || {};
+}
+
 export const ReactWindowScroller = <
   TProps extends ListScrollerProps | GridScrollerProps
 >({
@@ -77,7 +83,7 @@ export const ReactWindowScroller = <
 
   useEffect(() => {
     const handleWindowScroll = throttle(() => {
-      const { offsetTop = 0, offsetLeft = 0 } = outerRef.current || {};
+      const { offsetTop = 0, offsetLeft = 0 } = pageOffset(outerRef);
 
       const scrollTop = getScrollPosition('y') - offsetTop;
       const scrollLeft = getScrollPosition('x') - offsetLeft;
@@ -109,7 +115,7 @@ export const ReactWindowScroller = <
       if (!scrollUpdateWasRequested) return;
       const top = getScrollPosition('y');
       const left = getScrollPosition('x');
-      const { offsetTop = 0, offsetLeft = 0 } = outerRef.current || {};
+      const { offsetTop = 0, offsetLeft = 0 } = pageOffset(outerRef);
 
       scrollOffset += Math.min(top, offsetTop);
       scrollTop += Math.min(top, offsetTop);
