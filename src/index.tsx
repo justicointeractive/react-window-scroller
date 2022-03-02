@@ -23,18 +23,6 @@ const getScrollPosition = (axis: 'x' | 'y') =>
   document.body[documentScrollPositionKey[axis]] ||
   0;
 
-type ListScrollable = {
-  scrollTo: (top: number) => void;
-};
-
-type GridScrollable = {
-  scrollTo: (dimensions: { scrollTop: number; scrollLeft: number }) => void;
-};
-
-type ScrollerProps<TIsGrid extends boolean | undefined> = TIsGrid extends true
-  ? GridScrollable
-  : ListScrollable;
-
 type OnScrollProps = {
   scrollLeft: number;
   scrollTop: number;
@@ -51,7 +39,7 @@ type CommonChildrenRenderProps<T> = {
 
 type GridScrollerProps = {
   children: (
-    renderProps: CommonChildrenRenderProps<GridScrollable>
+    renderProps: CommonChildrenRenderProps<GridScrollableRef>
   ) => ReactNode;
   throttleTime?: number;
   isGrid: true;
@@ -59,20 +47,32 @@ type GridScrollerProps = {
 
 type ListScrollerProps = {
   children: (
-    renderProps: CommonChildrenRenderProps<ListScrollable>
+    renderProps: CommonChildrenRenderProps<ListScrollableRef>
   ) => ReactNode;
   throttleTime?: number;
   isGrid: false | undefined;
 };
 
+type ListScrollableRef = {
+  scrollTo: (top: number) => void;
+};
+
+type GridScrollableRef = {
+  scrollTo: (dimensions: { scrollTop: number; scrollLeft: number }) => void;
+};
+
+type ScrollableRef<TIsGrid extends boolean | undefined> = TIsGrid extends true
+  ? GridScrollableRef
+  : ListScrollableRef;
+
 export const ReactWindowScroller = <
-  T extends ListScrollerProps | GridScrollerProps
+  TProps extends ListScrollerProps | GridScrollerProps
 >({
   children,
   throttleTime = 10,
   isGrid
-}: T) => {
-  const ref = useRef<ScrollerProps<T['isGrid']>>();
+}: TProps) => {
+  const ref = useRef<ScrollableRef<TProps['isGrid']>>();
   const outerRef = useRef<HTMLElement>();
 
   useEffect(() => {
@@ -83,9 +83,12 @@ export const ReactWindowScroller = <
       const scrollLeft = getScrollPosition('x') - offsetLeft;
 
       if (isGrid) {
-        ref.current && ref.current.scrollTo({ scrollLeft, scrollTop } as any);
+        (ref.current as ScrollableRef<typeof isGrid>)?.scrollTo({
+          scrollLeft,
+          scrollTop
+        });
       } else {
-        ref.current && ref.current.scrollTo(scrollTop as any);
+        (ref.current as ScrollableRef<typeof isGrid>)?.scrollTo(scrollTop);
       }
     }, throttleTime);
 
