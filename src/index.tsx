@@ -1,11 +1,5 @@
 import throttle from 'lodash/throttle';
-import {
-  MutableRefObject,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef
-} from 'react';
+import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 
 const windowScrollPositionKey = {
   y: 'pageYOffset',
@@ -40,7 +34,7 @@ type CommonChildrenRenderProps<T> = {
 type GridScrollerProps = {
   children: (
     renderProps: CommonChildrenRenderProps<GridScrollableRef>
-  ) => ReactNode;
+  ) => JSX.Element;
   throttleTime?: number;
   isGrid: true;
 };
@@ -48,7 +42,7 @@ type GridScrollerProps = {
 type ListScrollerProps = {
   children: (
     renderProps: CommonChildrenRenderProps<ListScrollableRef>
-  ) => ReactNode;
+  ) => JSX.Element;
   throttleTime?: number;
   isGrid?: false;
 };
@@ -79,7 +73,7 @@ function pageOffset(
 
 export function ReactWindowScroller<
   TProps extends ListScrollerProps | GridScrollerProps
->({ children, throttleTime = 10, isGrid }: TProps): ReactNode {
+>({ children, throttleTime = 10, isGrid }: TProps): JSX.Element {
   const ref = useRef<ScrollableRef<TProps['isGrid']>>();
   const outerRef = useRef<HTMLElement>();
 
