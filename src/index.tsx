@@ -1,6 +1,13 @@
 import throttle from 'lodash/throttle';
 import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
-import { GridOnScrollProps, ListOnScrollProps } from 'react-window';
+import {
+  FixedSizeGrid,
+  FixedSizeList,
+  GridOnScrollProps,
+  ListOnScrollProps,
+  VariableSizeGrid,
+  VariableSizeList
+} from 'react-window';
 
 const windowScrollPositionKey = {
   y: 'pageYOffset',
@@ -48,13 +55,9 @@ type ListScrollerProps = {
   isGrid?: false;
 };
 
-type ListScrollableRef = {
-  scrollTo: (top: number) => any;
-};
+type ListScrollableRef = FixedSizeList | VariableSizeList;
 
-type GridScrollableRef = {
-  scrollTo: (dimensions: { scrollTop: number; scrollLeft: number }) => any;
-};
+type GridScrollableRef = FixedSizeGrid | VariableSizeGrid;
 
 type ScrollableRef<TIsGrid extends boolean | undefined> = TIsGrid extends true
   ? GridScrollableRef
