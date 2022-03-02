@@ -50,7 +50,7 @@ type ListScrollerProps = {
     renderProps: CommonChildrenRenderProps<ListScrollableRef>
   ) => ReactNode;
   throttleTime?: number;
-  isGrid: false | undefined;
+  isGrid?: false;
 };
 
 type ListScrollableRef = {
