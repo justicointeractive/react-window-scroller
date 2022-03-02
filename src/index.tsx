@@ -48,11 +48,11 @@ type ListScrollerProps = {
 };
 
 type ListScrollableRef = {
-  scrollTo: (top: number) => void;
+  scrollTo: (top: number) => any;
 };
 
 type GridScrollableRef = {
-  scrollTo: (dimensions: { scrollTop: number; scrollLeft: number }) => void;
+  scrollTo: (dimensions: { scrollTop: number; scrollLeft: number }) => any;
 };
 
 type ScrollableRef<TIsGrid extends boolean | undefined> = TIsGrid extends true
