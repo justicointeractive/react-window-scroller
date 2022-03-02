@@ -50,8 +50,8 @@ type ScrollerProps<
     >
   ) => JSX.Element;
   throttleTime?: number;
-  isGrid: TIsGrid;
-  isVariable: TIsVariable;
+  isGrid?: TIsGrid;
+  isVariable?: TIsVariable;
 };
 
 type ScrollProps<TIsGrid extends boolean | undefined> = TIsGrid extends true
