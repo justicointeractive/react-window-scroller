@@ -30,6 +30,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.179",
     "@types/react": "^17.0.39",
+    "@types/react-window": "^1.8.5",
     "babel-eslint": "^10.0.3",
     "cross-env": "^7.0.2",
     "enzyme": "^3.11.0",

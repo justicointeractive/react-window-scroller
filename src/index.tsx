@@ -1,5 +1,6 @@
 import throttle from 'lodash/throttle';
 import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
+import { GridOnScrollProps, ListOnScrollProps } from 'react-window';
 
 const windowScrollPositionKey = {
   y: 'pageYOffset',
@@ -24,16 +25,16 @@ type OnScrollProps = {
   scrollUpdateWasRequested: boolean;
 };
 
-type CommonChildrenRenderProps<T> = {
-  ref: MutableRefObject<T | undefined>;
+type CommonChildrenRenderProps<TRef, TOnScrollProps> = {
+  ref: MutableRefObject<TRef | undefined>;
   outerRef: MutableRefObject<HTMLElement | undefined>;
   style: React.CSSProperties;
-  onScroll: (ev: OnScrollProps) => any;
+  onScroll: (ev: TOnScrollProps) => any;
 };
 
 type GridScrollerProps = {
   children: (
-    renderProps: CommonChildrenRenderProps<GridScrollableRef>
+    renderProps: CommonChildrenRenderProps<GridScrollableRef, GridOnScrollProps>
   ) => JSX.Element;
   throttleTime?: number;
   isGrid: true;
@@ -41,7 +42,7 @@ type GridScrollerProps = {
 
 type ListScrollerProps = {
   children: (
-    renderProps: CommonChildrenRenderProps<ListScrollableRef>
+    renderProps: CommonChildrenRenderProps<ListScrollableRef, ListOnScrollProps>
   ) => JSX.Element;
   throttleTime?: number;
   isGrid?: false;
@@ -135,6 +136,6 @@ export function ReactWindowScroller<
       height: '100%',
       display: 'inline-block'
     },
-    onScroll
+    onScroll: onScroll as any
   });
 }
