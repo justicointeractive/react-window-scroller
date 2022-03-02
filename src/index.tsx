@@ -28,7 +28,7 @@ type CommonChildrenRenderProps<T> = {
   ref: MutableRefObject<T | undefined>;
   outerRef: MutableRefObject<HTMLElement | undefined>;
   style: React.CSSProperties;
-  onScroll: (ev: OnScrollProps) => void;
+  onScroll: (ev: OnScrollProps) => any;
 };
 
 type GridScrollerProps = {
