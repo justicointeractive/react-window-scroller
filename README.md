@@ -17,9 +17,9 @@ yarn add react-window-scroller
 With a List component:
 
 ```jsx
-import React from 'react'
-import { FixedSizeList as List } from 'react-window'
-import { ReactWindowScroller } from 'react-window-scroller'
+import React from 'react';
+import { FixedSizeList as List } from 'react-window';
+import { ReactWindowScroller } from 'react-window-scroller';
 
 const App = () => (
   <ReactWindowScroller>
@@ -37,15 +37,15 @@ const App = () => (
       </List>
     )}
   </ReactWindowScroller>
-)
+);
 ```
 
 With a Grid component:
 
 ```jsx
-import React from 'react'
-import { VariableSizeGrid as Grid } from 'react-window'
-import { ReactWindowScroller } from 'react-window-scroller'
+import React from 'react';
+import { VariableSizeGrid as Grid } from 'react-window';
+import { ReactWindowScroller } from 'react-window-scroller';
 
 const App = () => (
   <ReactWindowScroller isGrid>
@@ -66,16 +66,17 @@ const App = () => (
       </Grid>
     )}
   </ReactWindowScroller>
-)
+);
 ```
 
 ## Props
 
-| Prop name        | Type     | Description                                                                                | Default   |
-| ---------------- | -------- | ------------------------------------------------------------------------------------------ | --------- |
-| **children**     | function | Render props function called with 4 props: `ref`, `outerRef`, `style` and `onScroll`       | undefined |
-| **throttleTime** | number   | Timing (ms) for the throttle on window scroll event handler                                | 10        |
-| **isGrid**       | boolean  | Set to true if rendering a react-window Grid component (FixedSizeGrid or VariableSizeGrid) | false     |
+| Prop name        | Type     | Description                                                                                             | Default   |
+| ---------------- | -------- | ------------------------------------------------------------------------------------------------------- | --------- |
+| **children**     | function | Render props function called with 4 props: `ref`, `outerRef`, `style` and `onScroll`                    | undefined |
+| **throttleTime** | number   | Timing (ms) for the throttle on window scroll event handler                                             | 10        |
+| **isGrid**       | boolean  | Set to true if rendering a react-window Grid component (FixedSizeGrid or VariableSizeGrid)              | false     |
+| **isVariable**   | boolean  | Set to true if rendering a variable-sized List or Grid component (VariableSizeList or VariableSizeGrid) | false     |
 
 ## License
 
